@@ -2,6 +2,7 @@
 var util = require('../../utils/util.js');
 var app = getApp()
 var wxviewType = require('../../lib/wxview.js');
+var moment = require('../../lib/moment.min.js');
 
 var touchData = {
   init: function() {
@@ -50,7 +51,8 @@ Page({
   data: {
     msgList:[],
     current: '',
-    focus: true
+    focus: true,
+    max_id: 0
   },
   swipeCheckX:35,       //激活检测滑动的阈值
   swipeCheckY:0,
@@ -63,17 +65,27 @@ Page({
   showState:0,          //0 未显示菜单 1显示菜单
   touchStartState: 0,   // 开始触摸时的状态 0 未显示菜单 1 显示菜单
 
+  render: function () {
+    this.setData(this.renderData);
+    this.renderData = {};
+  },
+  getRenderData: function () {
+    return this.renderData;
+  },
+
   addItem: function (event) {
-    var msg = {};
-    msg.userName = event.detail.value;
-    msg.msgText = 'new todo item'
-    msg.id = 'id-' + this.data.msgList.length + 1;
-    this.data.msgList.push(msg);
+    var item = {};
+    item.id = 'id-' + this.data.max_id++;
+    item.text = event.detail.value + item.id;
+    item.create = item.update = new Date().valueOf();
+    item.moment = moment(item.update, 'x').toNow();
+    this.data.msgList.push(item);
     this.updateViewHeight();
     this.setData({
       msgList: this.data.msgList,
       current: '',
-      focus: true
+      focus: true,
+      max_id: this.data.max_id
       });
   },
   deleteItem: function (e) {
@@ -89,18 +101,22 @@ Page({
     this.showState = 0;
     this.setData({ scrollY: true });
   },
-  onLoad: function() {
+  onLoad: function () {
+    this.renderData = {};
+
     this.msgListView = wxviewType.createWXView();
     this.msgListView.setAnimationParam('msgListAnimation');
     this.msgListView.page = this;
 
-    for (var i = 0; i < 9; i++) {
-      var msg = {};
-      msg.userName = '' + '用户' + i+1;
-      msg.msgText = 'New item'
-      msg.id = 'id-' + i+1;
-      // msg.headerImg = '../../res/img/head.png';
-      this.data.msgList.push(msg);
+    var sampleList = ['Dinner', 'Sleep', 'Play'];
+    for (var i = 0; i < sampleList.length; i++) {
+      var item = {};
+      item.id = 'id-' + this.data.max_id++;
+      // item.headerImg = '../../res/img/head.png';
+      item.text = sampleList[i] + item.id;
+      item.create = item.update = new Date().valueOf();
+      item.moment = moment(item.update, 'x').toNow();
+      this.data.msgList.push(item);
     }
 
     var width = app.data.deviceInfo.windowWidth;
@@ -112,7 +128,8 @@ Page({
 
     this.setData({
       msgList: this.data.msgList,
-      focus: true
+      focus: true,
+      max_id: this.data.max_id
     });
   },
   updateViewHeight: function() {

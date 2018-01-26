@@ -7,15 +7,15 @@
        <view wx:for="{{msgList}}" wx:key="id"  class='msg-item' animation='{{item.wrapAnimation}}'> 
             <view id='{{item.id}}' class='msg' animation='{{item.animation}}'>
                 <!-- <image class='header-img' src="{{item.headerImg}}" ></image> -->
-                <text class='user-name'>{{item.userName}}</text>
-                <text class='msg-text'>{{item.msgText}}</text>
+                <text class='user-name'>{{item.text}}</text>
+                <text class='msg-text'>{{item.moment}}</text>
             </view>
             <view class='msg-menu'>
                 <view id='{{item.id}}' class='menu-delete' bindtap="deleteItem">
                     删除
                 </view>
                 <view id='{{item.id}}' class='menu-mark'>
-                    标记未读
+                    标记完成
                 </view>
             </view>
        </view>
