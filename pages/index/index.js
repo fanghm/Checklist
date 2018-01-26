@@ -108,16 +108,26 @@ Page({
     this.msgListView.setAnimationParam('msgListAnimation');
     this.msgListView.page = this;
 
-    var sampleList = ['Dinner', 'Sleep', 'Play'];
-    for (var i = 0; i < sampleList.length; i++) {
-      var item = {};
-      item.id = 'id-' + this.data.max_id++;
-      // item.headerImg = '../../res/img/head.png';
-      item.text = sampleList[i] + item.id;
-      item.create = item.update = new Date().valueOf();
-      item.moment = moment(item.update, 'x').toNow();
-      this.data.msgList.push(item);
-    }
+    let that = this
+    //获取存储信息
+    console.log('onLoad, loading from storage');
+    wx.getStorage({
+      key: 'todos',
+      success: function (res) {
+        if (res.data)
+          this.data.msgList = res.data.msgList;
+          this.data.msgList.forEach(function (item) {
+            item.moment = moment(item.update, 'x').toNow();
+          });
+
+          that.setData({
+            msgList: this.data.msgList,
+            max_id: res.data.max_id
+          });
+        console.log('Load stored data: ' + JSON.stringify(res.data))
+        // console.log('todos: ' + JSON.stringify(that.data.todos))
+      }
+    });
 
     var width = app.data.deviceInfo.windowWidth;
     var height = app.data.deviceInfo.windowHeight;
@@ -125,12 +135,14 @@ Page({
     this.msgListView.setWH(width, height);
     this.updateViewHeight();
     this.swipeCheckY = util.rpx2px(50, width);
-
-    this.setData({
-      msgList: this.data.msgList,
-      focus: true,
-      max_id: this.data.max_id
-    });
+  },
+  onHide: function () {
+    console.log('onHide, saving to storage');
+    try {
+      wx.setStorageSync('todos', this.data);
+    } catch (e) {
+      console.log(e);
+    }
   },
   updateViewHeight: function() {
     var height = util.rpx2px(150, app.data.deviceInfo.windowWidth); // row height: 150rpx -> 75px
